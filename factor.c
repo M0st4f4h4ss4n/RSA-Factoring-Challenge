@@ -1,33 +1,53 @@
-#include "factor.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-/**
- * main - main function
- *
- *
- * Return: void
- */
-int main(int argc, char *argv[])
-{
-	FILE *fptr;
-	size_t count;
-	ssize_t line;
-	char *buffer = NULL;
+int main(int argc, char *argv[]) {
+    // Check that a file name was provided as an argument
+    if (argc < 2) {
+        fprintf(stderr, "Usage: factors <file>\n");
+        return 1;
+    }
 
+    // Open the file
+    FILE *file = fopen(argv[1], "r");
+    if (!file) {
+        perror("Error opening file");
+        return 1;
+    }
 
-	if (argc != 2)
-	{
-		fprintf(stderr, "Usage: factor <filename>\n");
-		exit(EXIT_FAILURE);
-	}
-	fptr = fopen(argv[1], "r");
-	if (fptr == NULL)
-	{
-		fprintf(stderr, "Error: can't open file %s\n", argv[1]);
-		exit(EXIT_FAILURE);
-	}
-	while((line = getline(&buffer, &count, fptr)) != -1)
-	{
-		factorize(buffer);
-	}
-return (0);
+    // Read the numbers from the file, one line at a time
+    while (!feof(file)) {
+        // Read a line from the file
+        char line[1024];
+        if (fgets(line, sizeof(line), file)) {
+            // Convert the line to an integer
+            int n = atoi(line);
+
+            // Print the factorization of n
+            printf("%d=", n);
+
+            // Find the factors of n
+            int found = 0;
+            for (int i = 2; i <= n/2; i++) {
+                if (n % i == 0) {
+                    printf("%d*%d", i, n/i);
+                    found = 1;
+                    break;
+                }
+            }
+
+            // If no factors were found, the number is prime
+            if (!found) {
+                printf("%d*1", n);
+            }
+
+            // Print a newline after each factorization
+            printf("\n");
+        }
+    }
+
+    // Close the file
+    fclose(file);
+
+    return 0;
 }
